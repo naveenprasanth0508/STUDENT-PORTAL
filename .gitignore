@@ -6,3 +6,8 @@ uploads/
 __pycache__/
 *.py[cod]
 *.db
+
+.vercel
+dist/
+public/
+cookies.txt
