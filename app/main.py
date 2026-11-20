@@ -16,7 +16,7 @@ Category = Literal["Academic", "Fee", "Certificate", "Hostel", "Other"]
 Priority = Literal["Low", "Medium", "High"]
 MAX_FILE = 2 * 1024 * 1024
 MAGIC = {"application/pdf": (b"%PDF", ".pdf"), "image/png": (b"\x89PNG", ".png"), "image/jpeg": (b"\xff\xd8\xff", ".jpg")}
-UPLOADS = pathlib.Path(os.getenv("UPLOAD_DIR", "/tmp/uploads" if os.getenv("VERCEL") else "uploads"))
+UPLOADS = pathlib.Path("/tmp/uploads" if os.getenv("VERCEL") else os.getenv("UPLOAD_DIR", "uploads"))
 UPLOADS.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="Student Portal API")
