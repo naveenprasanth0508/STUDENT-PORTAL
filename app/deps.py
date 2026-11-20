@@ -5,7 +5,7 @@ from fastapi import Cookie, Depends, HTTPException
 from .db import get_db
 from .models import User
 
-SECRET = os.environ["JWT_SECRET"]
+SECRET = os.getenv("JWT_SECRET", "change-this-vercel-development-secret-at-least-32-characters")
 
 def hash_pw(p: str) -> str:
     return bcrypt.hashpw(p.encode(), bcrypt.gensalt()).decode()
