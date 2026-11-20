@@ -22,6 +22,19 @@ UPLOADS.mkdir(exist_ok=True)
 app = FastAPI(title="Student Portal API")
 Base.metadata.create_all(engine)  # dev convenience; use Alembic migrations in production
 
+# Demo data for a serverless deployment that starts with an empty SQLite database.
+from .db import SessionLocal
+from .deps import hash_pw
+with SessionLocal() as _seed_db:
+    if not _seed_db.scalar(select(User).limit(1)):
+        _seed_db.add_all([
+            User(name="Admin Alice", email="admin@example.com", role="admin",
+                 password_hash=hash_pw(os.getenv("SEED_ADMIN_PASSWORD", "Admin@12345"))),
+            User(name="Sam Student", email="student@example.com", role="student",
+                 password_hash=hash_pw(os.getenv("SEED_STUDENT_PASSWORD", "Student@12345"))),
+        ])
+        _seed_db.commit()
+
 # The frontend expects {"message": "..."} for every error.
 @app.exception_handler(StarletteHTTPException)
 async def http_err(_, e):
