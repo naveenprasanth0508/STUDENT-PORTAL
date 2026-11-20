@@ -206,3 +206,15 @@ def stats(u: User = Depends(current_user), db=Depends(get_db)):
     counts = dict(db.execute(select(Request.status, func.count()).where(*conds).group_by(Request.status)).all())
     recent = db.scalars(select(Request).where(*conds).order_by(Request.updated_at.desc()).limit(5)).unique().all()
     return {"total": sum(counts.values()), "counts": counts, "recent": [ser(r, False, False) for r in recent]}
+
+# Vercel may either pass /api/auth/me or strip /api to /auth/me.
+# Normalize stripped API paths so FastAPI's /api routes always match.
+from starlette.middleware.base import BaseHTTPMiddleware
+
+@app.middleware("http")
+async def vercel_api_path(request, call_next):
+    path = request.scope.get("path", "")
+    if path.startswith("/auth/") or path in ("/auth", "/stats", "/admins", "/requests") or path.startswith("/requests/"):
+        request.scope["path"] = "/api" + path
+        request.scope["raw_path"] = ("/api" + path).encode()
+    return await call_next(request)
